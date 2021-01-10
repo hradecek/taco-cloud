@@ -1,5 +1,16 @@
 package com.hradecek.tacos.models;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.Table;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -8,7 +19,15 @@ import lombok.Data;
 import org.hibernate.validator.constraints.CreditCardNumber;
 
 @Data
+@Entity
+@Table(name = "Taco_Order")
 public class Order {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    private Date placedAt;
 
     @NotBlank(message = "Name is required")
     private String name;
@@ -25,7 +44,6 @@ public class Order {
     @NotBlank(message = "Zip code is required")
     private String zip;
 
-
     @CreditCardNumber(message = "Not a valid credit card number")
     private String ccNumber;
 
@@ -34,4 +52,20 @@ public class Order {
 
     @Digits(integer = 3, fraction = 0, message = "Invalid CCV")
     private String ccCVV;
+
+    @ManyToMany(targetEntity =  Taco.class)
+    private List<Taco> tacos = new ArrayList<>();
+
+    public void addDesign(Taco design) {
+        tacos.add(design);
+    }
+
+    public List<Taco> getTacos() {
+        return tacos;
+    }
+
+    @PrePersist
+    void placedAt() {
+        placedAt = new Date();
+    }
 }
